@@ -1,0 +1,78 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/services/webapi/src/webapi.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/services/webapi/src/webapi.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "watch",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "--project",
+                "${workspaceFolder}/services/webapi/src/webapi.csproj",
+                "run",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile",
+            "dependsOn": [
+                "start database"
+            ]
+        },
+        {
+            "label": "start database",
+            "type": "shell",
+            "command": "docker-compose",
+            "args": [
+                "--env-file",
+                "${workspaceFolder}/.env",
+                "-f",
+                "${workspaceFolder}/services/db/docker-compose-db.yml",
+                "up",
+                "--detach"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "build and start database",
+            "dependsOn": [
+                "build",
+                "start database"
+            ]
+        },
+        {
+            "label": "stop database",
+            "type": "docker-compose",
+            "dockerCompose": {
+                "down": {},
+                "files": [
+                    "${workspaceFolder}/services/db/docker-compose-db.yml"
+                ]
+            },
+            "problemMatcher": []
+        }
+    ]
+}

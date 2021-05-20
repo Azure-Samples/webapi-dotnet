@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+declare random_val_regex='__Random\(([a-zA-Z0-9_]+)\)'
+declare envvar_regex='^[[:space:]]*([a-zA-Z0-9_]+)=(.+)$'
+declare -A random_vals=()
+
+get_random_val() {
+    declare -n vals=random_vals
+    declare name=$1
+
+    declare randval=${vals[$name]}
+    if [[ ! $randval ]]; then
+        declare -a lcase=() ucase=() numbers=()
+        for i in {a..z}; do
+            lcase[$RANDOM]=$i
+        done
+        for i in {A..Z}; do
+            ucase[$RANDOM]=$i
+        done
+        for i in {0..9}; do
+            numbers[$RANDOM]=$i
+        done
+
+        declare output_chars="${lcase[*]::5}${ucase[*]::5}${numbers[*]::4}"
+        randval=${output_chars//[[:space:]]/}
+        randval=$(echo "$randval" | fold -w1 | shuf | tr -d '\n')
+        vals[$name]=$randval
+    fi
+
+    echo ${vals[$name]}
+}
+ 
+while IFS=$'\n'; read -r line; do
+    if [[ $line =~ $envvar_regex ]]; then
+        declare envvar_name=${BASH_REMATCH[1]}
+        declare envvar_value=${BASH_REMATCH[2]}
+
+        if [[ $envvar_value =~ $random_val_regex ]]; then
+            declare random_tag=${BASH_REMATCH[0]}
+            declare random_name=${BASH_REMATCH[1]}
+            declare random_val=$(get_random_val $random_name)
+
+            # This should not be really necessary, but there seems to be a bug in bash,
+            # where associative array values set in functions do not appear to code outside of a function.
+            random_vals[$random_name]=$random_val
+
+            declare envvar_value_final=${envvar_value//$random_tag/$random_val}
+            printf "%s=%s\n" ${envvar_name} ${envvar_value_final}
+        else
+            printf "%s\n" $line
+        fi 
+    else
+        printf "%s\n" $line
+    fi
+done

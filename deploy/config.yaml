@@ -1,0 +1,3 @@
+AZURE_LOCATION: "westus2"
+RESOURCE_NAME_PREFIX: "dotnetwebapi"
+ENVIRONMENT_TAG: "test"

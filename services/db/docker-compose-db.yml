@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest 
+    restart: unless-stopped
+    volumes:
+      - sql-data:/data/db
+    environment:
+      - SA_PASSWORD=${SQL_SA_PASSWORD}
+      - ACCEPT_EULA=Y
+    ports:
+      - 1433:1433
+
+volumes:
+  sql-data:

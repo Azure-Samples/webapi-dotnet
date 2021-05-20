@@ -1,0 +1,27 @@
+{
+    "name": ".NET 3.1 with Docker, Bicep, and SQL tools",
+    
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+
+    "overrideCommand": false,
+
+    "runArgs": ["--init", "--privileged"],
+
+    "extensions": [
+        "ms-dotnettools.csharp",
+		"ms-mssql.mssql",
+		"ms-azuretools.vscode-bicep",
+        "ms-azuretools.vscode-docker",
+		"redhat.vscode-yaml"
+    ],
+
+    "postCreateCommand": [
+        "bash",
+        "scripts/webapi/init"
+    ],
+
+    // Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+    "remoteUser": "vscode"
+}

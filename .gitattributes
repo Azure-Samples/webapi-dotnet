@@ -1,0 +1,8 @@
+* text=auto eol=lf
+*.{cmd,[cC][mM][dD]} text eol=crlf
+*.{bat,[bB][aA][tT]} text eol=crlf
+*.ps1 text eol=crlf
+*.bacpac binary
+*.sh text eol=lf
+scripts/webapi/init text eol=lf
+scripts/init-dot-env text eol=lf

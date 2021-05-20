@@ -1,0 +1,2 @@
+SQL_SA_PASSWORD=__Random(SqlPassword)
+SQLCONNSTRING='Data Source=tcp:localhost,1433;Database=webapidb;User ID=sa;Persist Security Info=True;Password=__Random(SqlPassword)'
