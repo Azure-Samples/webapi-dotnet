@@ -10,7 +10,6 @@ products:
 - azure-app-service
 - aspnet
 - aspnet-core
-- aspnet-coreapi
 - dotnet-core
 description: Get started quickly with ASP.NET Web API and Azure SQL (apptemplate)
 ---
