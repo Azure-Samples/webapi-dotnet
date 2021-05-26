@@ -14,7 +14,7 @@ products:
 description: Get started quickly with ASP.NET Web API and Azure SQL (apptemplate)
 ---
 
-# WebAPI with Database using ASP.NET and Azure SQL
+# Application Template for WebAPI and Database using ASP.NET and Azure SQL
 
 This repository contains a template for an application built for the Azure Application Platform. This template is built to make it easy to dive straight into implementing business logic without having to spend time on setting up an engineering system for your application. The template gives you a starting point, while providing the option to change and extend any of the pre-configured components to suit your needs. The template makes use of an opinionated pattern that Microsoft recommends.
 
