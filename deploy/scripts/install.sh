@@ -6,7 +6,7 @@ set -o pipefail
 usage()
 {
     cat <<END
-install --resource-name-prefix <resource name prefix> --environment-tag <environment tag> --location <Azure region> --resource-group-tag <resource group tag> [--overwrite] [--resource-group-name <resource group name>] [--no-build] [--no-deploy] [--uninstall]
+install --resource-name-prefix <resource name prefix> --environment-tag <environment tag> --location <Azure region> --resource-group-tag <resource group tag> [--overwrite] [--resource-group-name <resource group name>] [--no-build] [--no-deploy] [--uninstall] [--kube-environment-id <kube environment id>] [--custom-location-id <custom location id>] [--arc-location <arc location>]
 
 Deploys the dotnet-webapi sample to specified Azure region by performing the following steps:
   1. Build the application and zip the binaries for deployment.
@@ -27,6 +27,12 @@ Options:
     Just do the application build, do not deploy (or uninstall) the app.
   --uninstall
     Uninstall the application (delete its resource group and purge its keyvault).
+  --kube-environment-id <kube environment id>
+    Provide the kube environment id to deploy to Arc.
+  --custom-location-id <custom location id>
+    Provide the custome location id to deploy to Arc.
+  --arc-location <arc location>
+    Provide the location for Arc deployed resources.
 
 Example invocation: install --resource-name-prefix webapi --environment-tag dev --location westus2 --resource-group-tag 20210506a
 
@@ -83,6 +89,9 @@ region=''
 rg_tag=''
 resource_group_name=''
 uninstall=''
+kube_environment_id=''
+custom_location_id=''
+arc_location=''
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -104,6 +113,12 @@ while [[ $# -gt 0 ]]; do
             no_deploy='yes'; shift ;;
         --uninstall )
             uninstall='yes'; shift ;;
+        --kube-environment-id )
+            kube_environment_id="$2"; shift 2 ;;
+        --custom-location-id )
+            custom_location_id="$2"; shift 2 ;;
+        --arc-location )
+            arc_location="$2"; shift 2 ;;
         -h | --help )
             usage; exit 2 ;;
         *)
@@ -275,13 +290,19 @@ fi
 deployment_name="deploy-${resource_name_prefix}-${environment_tag}"
 db_deployment_name="db-deploy-${resource_name_prefix}-${environment_tag}"
 
+if [[ $custom_location_id == '' ]]; then
+    templateFile='main.bicep'
+else
+    templateFile='main.json'
+fi
+
 echo "Create Azure assets..."
 az bicep install
 sql_password=$(get_sql_pwd)
 deployment_result=$(az deployment group create \
     --resource-group "$resource_group_name" \
     --name "$deployment_name" \
-    --template-file "${root_dir}/deploy/infra/main.bicep" \
+    --template-file "${root_dir}/deploy/infra/${templateFile}" \
     --parameters \
         keyVaultName=${keyvault_name} \
         sqlServerName=${sql_server_name} \
@@ -289,7 +310,10 @@ deployment_result=$(az deployment group create \
         applicationInsightsName=${application_insights_name} \
         logAnalyticsWorkspaceName=${log_analytics_workspace_name} \
         webAppName=${web_app_name} \
-        webAppHostingPlanName=${web_app_hosting_plan_name})
+        webAppHostingPlanName=${web_app_hosting_plan_name} \
+        kubeEnvironmentId=${kube_environment_id} \
+        customLocationId=${custom_location_id} \
+        arcLocation=${arc_location})
 if [[ $? -ne 0 ]]; then
     echo "App Service and SQL Server deployment failed"
     exit 12

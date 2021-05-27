@@ -7,7 +7,6 @@ param sqlServerAdminName string
 param sqlServerAdminPassword string
 param logAnalyticsWorkspaceId string
 
-
 resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
   name: keyVaultName
   location: resourceGroup().location

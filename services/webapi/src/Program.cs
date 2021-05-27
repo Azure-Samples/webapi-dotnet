@@ -27,7 +27,12 @@ namespace Webapi
                         else if (context.HostingEnvironment.IsStaging() || context.HostingEnvironment.IsProduction())
                         {
                             var builtConfig = configBuilder.Build();
-                            configBuilder.AddAzureKeyVault(new Uri($"https://{builtConfig["KeyVaultName"]}.vault.azure.net/"), new DefaultAzureCredential());
+                            // If the SQLCONNSTRING is not available in the config already read it from KeyVault.
+                            // This would be the case for a deployment to Azure. Deployment to Arc will have the SQLCONNSTRING as an app config
+                            if (builtConfig.GetValue<string>("SQLCONNSTRING") == "")
+                            {
+                                configBuilder.AddAzureKeyVault(new Uri($"https://{builtConfig["KeyVaultName"]}.vault.azure.net/"), new DefaultAzureCredential());
+                            }
                         }
                     });
 

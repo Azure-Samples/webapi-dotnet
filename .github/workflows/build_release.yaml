@@ -61,11 +61,16 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v2
+      
+      - name: Install pre-release bicep
+        run: |
+          curl -L https://nightly.link/Azure/bicep/actions/artifacts/62679913.zip --output bicep.zip
+          sudo unzip bicep.zip bicep -d /usr/local/bin && sudo chmod +x /usr/local/bin/bicep
 
       - name: Validate that bicep builds
         run: |
-          az bicep build -f main.bicep
-          az bicep build -f webapi/dbrestore.bicep
+          bicep build main.bicep
+          bicep build webapi/dbrestore.bicep
         working-directory: ./deploy/infra
 
 
@@ -96,6 +101,15 @@ jobs:
         with:
           path: ./output
 
+      - name: Install pre-release bicep
+        run: |
+          curl -L https://nightly.link/Azure/bicep/actions/artifacts/62679913.zip --output bicep.zip
+          sudo unzip bicep.zip bicep -d /usr/local/bin && sudo chmod +x /usr/local/bin/bicep
+      
+      - name: Build bicep for ARC
+        run: bicep build main.bicep
+        working-directory: ./deploy/infra
+
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -115,3 +129,6 @@ jobs:
           --location "${{fromJson(env.config).AZURE_LOCATION }}" 
           --resource-group-tag "$GITHUB_REPOSITORY"
           --no-build
+          --kube-environment-id "${{fromJson(env.config).KUBE_ENVIRONMENT_ID }}"
+          --custom-location-id "${{fromJson(env.config).CUSTOM_LOCATION_ID }}"
+          --arc-location "${{fromJson(env.config).ARC_LOCATION }}"

@@ -6,6 +6,9 @@ param applicationInsightsName string
 param logAnalyticsWorkspaceName string
 param webAppHostingPlanName string
 param webAppName string
+param kubeEnvironmentId string = ''
+param customLocationId string = ''
+param arcLocation string = ''
 
 var sqlServerAdminName = 'azure_dba'
 var sqlDatabaseName = 'webapidb'
@@ -28,8 +31,8 @@ module db './webapi/db.bicep' = {
   }
 }
 
-module webapp './webapi/webapp.bicep' = {
-  name: 'webapp_deploy'
+module webappAzure './webapi/webappAzure.bicep' = if (customLocationId == '') {
+  name: 'webappAzureDeploy'
   params: {
     webAppHostingPlanName: webAppHostingPlanName
     webAppName: webAppName
@@ -39,11 +42,29 @@ module webapp './webapi/webapp.bicep' = {
   }
 }
 
-module secrets './webapi/secrets.bicep' = {
+module webappArc './webapi/webappArc.bicep' = if (customLocationId != '') {
+  name: 'webappArcDeploy'
+  params: {
+    webAppHostingPlanName: webAppHostingPlanName
+    webAppName: webAppName
+    appInsightsInstrumentationKey: monitoring.outputs.appInsightsInstrumentationKey
+    keyVaultName: keyVaultName
+    logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceId
+    kubeEnvironmentId: kubeEnvironmentId
+    customLocationId: customLocationId
+    location: arcLocation
+    sqlServerFQDN: db.outputs.sqlServerFQDN
+    sqlDatabaseName: sqlDatabaseName
+    sqlServerAdminName: sqlServerAdminName
+    sqlServerAdminPassword: sqlServerAdminPassword
+  }
+}
+
+module secrets './webapi/secrets.bicep' = if (customLocationId == '') {
   name: 'secrets_deploy'
   params: {
     keyVaultName: keyVaultName
-    webAppPrincipalId: webapp.outputs.webAppPrincipalId
+    webAppPrincipalId: customLocationId == '' ? webappAzure.outputs.webAppPrincipalId : ''
     sqlServerFQDN: db.outputs.sqlServerFQDN
     sqlDatabaseName: sqlDatabaseName
     sqlServerAdminName: sqlServerAdminName
