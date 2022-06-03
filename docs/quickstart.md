@@ -55,7 +55,7 @@ These steps will help you create a Service Principal and hook it up to your GitH
 1. Log into your Azure account with `az login` and follow the prompts.
 1. List your available subscriptions with `az account list` and set the default by name or ID with `az account set -s <subName or subID>`
 1. Enter `az account show` to verify the correct subscription is selected.
-1. Enter `az ad sp create-for-rbac --role contributor --sdk-auth` to create a service principal.
+1. Enter `az ad sp create-for-rbac --role Contributor --scopes /subscriptions/{subscriptionId}` to create a service principal, replacing `subscriptionId` with your own subscription ID.
 
     > **Note:** This Service Principal will have subscription-wide contributor rights. This gives access to all resources in the subscription.
 
@@ -111,7 +111,7 @@ These steps will help you view the health, logs, and metrics of your app.
 Great job, you did it! Now that your application is up and running, you may want to:
 
 - [Learn more about the template concepts](concepts.md)
-- [Check out more Hot-Tos](how-to-guides.md)
+- [Check out more How-Tos](how-to-guides.md)
 
 ## Contact us
 
