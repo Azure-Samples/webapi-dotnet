@@ -11,7 +11,7 @@ resource webAppHostingPlan 'Microsoft.Web/serverfarms@2020-06-01' = {
     reserved: false
   }
   sku: {
-    name: 'B1'
+    name: 'P1v2'
     capacity: 1
   }
 }
